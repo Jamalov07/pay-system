@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "wallet" ALTER COLUMN "number" SET DATA TYPE VARCHAR(20);

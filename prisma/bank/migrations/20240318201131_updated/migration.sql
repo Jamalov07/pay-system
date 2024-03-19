@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "wallet" ALTER COLUMN "balance" SET DEFAULT '0',
+ALTER COLUMN "balance" SET DATA TYPE VARCHAR;

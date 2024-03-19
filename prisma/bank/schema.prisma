@@ -1,0 +1,89 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../../node_modules/@prisma/bank/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("BANK_DATABASE_URL")
+}
+
+enum WalletType {
+  card           @map("card")
+  accountNumber  @map("account_number")  
+
+   @@map("wallet_type")
+}
+
+model Bank {
+  id              String     @map("id")               @db.Uuid          @default(dbgenerated("GEN_RANDOM_UUID()"))
+  name            String     @map("name")             @db.VarChar(50)   
+  isMain          Boolean    @map("is_main")          @db.Boolean       @default(false)
+  address         String     @map("address")          @db.VarChar(255)  @default("")
+  cardStarts      String     @map("card_starts")      @db.VarChar(4) 
+  cardExpiration  Int        @map("card_expiration")  @db.Integer       @default(5)
+  createdAt       DateTime   @map("created_at")       @db.Timestamp     @default(now())
+  updatedAt       DateTime   @map("updated_at")       @db.Timestamp     @updatedAt
+  deletedAt       DateTime?  @map("deleted_at")       @db.Timestamp
+
+  wallets  Wallet[]
+
+  @@id([ id ])
+  @@map("bank")
+
+}
+
+model Wallet {
+  id           String      @map("id")            @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  bankId       String      @map("bank_id")       @db.Uuid
+  ownerId      String?     @map("owner_id")      @db.Uuid
+  companyId    String?     @map("company_id")    @db.Uuid
+  type         WalletType                                
+  number       String      @map("number")        @db.VarChar(20)
+  expiredDate  DateTime    @map("expired_date")  @db.Date
+  password     Int?        @map("password")      @db.Integer
+  balance      String      @map("balance")       @db.VarChar()  @default("0")
+  createdAt    DateTime    @map("created_at")    @db.Timestamp  @default(now())
+  updatedAt    DateTime    @map("updated_at")    @db.Timestamp  @updatedAt
+  deletedAt    DateTime?   @map("deleted_at")    @db.Timestamp
+
+  bank  Bank  @relation(fields: [ bankId ], references: [ id ], onDelete: Cascade, onUpdate: NoAction)
+
+  inputHistory   PaymentHistory[]  @relation(name: "to")
+  outputHistory  PaymentHistory[]  @relation(name: "from")
+  
+  @@id([ id ])
+  @@map("wallet")
+}
+
+model PaymentHistory {
+  id            String     @map("id")              @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  fromWalletId  String     @map("from_wallet_id")  @db.Uuid
+  toWalletId    String     @map("to_wallet_id")    @db.Uuid
+  moneyAmount   BigInt     @map("money_amount")    @db.BigInt
+  isSuccess     Boolean    @map("is_success")      @db.Boolean    @default(false)
+  createdAt     DateTime   @map("created_at")      @db.Timestamp  @default(now())
+  updatedAt     DateTime   @map("updated_at")      @db.Timestamp  @updatedAt
+  deletedAt     DateTime?  @map("deleted_at")      @db.Timestamp
+  
+  toWallet    Wallet  @relation(name: "to",   fields: [ toWalletId   ], references: [ id ], onDelete: Cascade, onUpdate: NoAction)
+  fromWallet  Wallet  @relation(name: "from", fields: [ fromWalletId ], references: [ id ], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([ id ])
+  @@map("payment_history")
+
+}
+
+model IncrementWalletNumber {
+  id   String  @map("id")   @db.Uuid  @default(dbgenerated("GEN_RANDOM_UUID()"))
+  num  String  @map("num")  @default("10000000000000000000")
+  @@id([ id ])
+  @@map("increment_wallet_number")
+}
+
+model IncrementCardNumber {
+  id   String  @map("id")   @db.Uuid  @default(dbgenerated("GEN_RANDOM_UUID()"))
+  num  String  @map("num")  @default("100000000000")
+  @@id([ id ])
+  @@map("increment_card_number")
+}

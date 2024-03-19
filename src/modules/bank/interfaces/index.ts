@@ -1,0 +1,5 @@
+export * from './bank-create.interfaces'
+export * from './bank-delete.interfaces'
+export * from './bank-fields.interfaces'
+export * from './bank-retrieve.interfaces'
+export * from './bank-update.interfaces'

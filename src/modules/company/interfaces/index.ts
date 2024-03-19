@@ -1,0 +1,5 @@
+export * from './company-create.interfaces'
+export * from './company-delete.interfaces'
+export * from './company-fields.interfaces'
+export * from './company-retrieve.interfaces'
+export * from './company-update.interfaces'

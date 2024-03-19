@@ -1,0 +1,60 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../../node_modules/@prisma/user/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("USER_DATABASE_URL")
+}
+
+model User {
+  id              String     @map("id")               @db.Uuid         @default(dbgenerated("GEN_RANDOM_UUID()"))
+  firstName       String     @map("first_name")       @db.VarChar(50)  
+  middleName      String?    @map("middle_name")      @db.VarChar(50)  
+  lastName        String?    @map("last_name")        @db.VarChar(50)  
+  passportNumber  String?    @map("passport_number")  @db.VarChar(9) 
+  pinfl           String?    @map("pinfl")            @db.VarChar(20)
+  birthdayDate    DateTime   @map("birthday_date")    @db.Date
+  email           String     @map("email")            @db.VarChar(50)
+  phoneNumber     String?    @map("phone_number")     @db.VarChar(14)
+  password        String?    @map("password")         @db.VarChar(50)
+  createdAt       DateTime   @map("created_at")       @db.Timestamp    @default(now())
+  updatedAt       DateTime   @map("updated_at")       @db.Timestamp    @updatedAt
+  deletedAt       DateTime?  @map("deleted_at")       @db.Timestamp
+
+  companies  Company[]
+
+  @@id([ id ])
+  @@map("user")
+}
+
+model Company {
+  id         String     @map("id")          @db.Uuid          @default(dbgenerated("GEN_RANDOM_UUID()"))
+  name       String     @map("name")        @db.VarChar(100)  
+  ownerId    String     @map("owner_id")    @db.Uuid          
+  address    String     @map("address")     @db.VarChar(100)  
+  createdAt  DateTime   @map("created_at")  @db.Timestamp     @default(now())
+  updatedAt  DateTime   @map("updated_at")  @db.Timestamp     @updatedAt
+  deletedAt  DateTime?  @map("deleted_at")  @db.Timestamp
+
+  owner  User  @relation(fields: [ ownerId ], references: [ id ], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([ id ])
+  @@map("company")
+}
+
+model PaymentHistory {
+  id            String     @map("id")              @db.Uuid       @default(dbgenerated("GEN_RANDOM_UUID()"))
+  fromWalletId  String     @map("from_wallet_id")  @db.Uuid
+  toWalletId    String     @map("to_wallet_id")    @db.Uuid
+  moneyAmount   BigInt     @map("money_amount")    @db.BigInt
+  isSuccess     Boolean    @map("is_success")      @db.Boolean    @default(false)
+  createdAt     DateTime   @map("created_at")      @db.Timestamp  @default(now())
+  updatedAt     DateTime   @map("updated_at")      @db.Timestamp  @updatedAt
+  deletedAt     DateTime?  @map("deleted_at")      @db.Timestamp
+  
+  @@id([ id ])
+  @@map("payment_history")
+
+}
